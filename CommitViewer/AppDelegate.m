@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "../objective-git/libgit2/include/git2.h"
 #import <ObjectiveGit/ObjectiveGit.h>
 
 @interface AppDelegate ()
@@ -38,7 +39,19 @@
 // Annoying that I have to do this - I'll have to change GTCommit to use properties at some later stage.
 
 - (NSString *)messageTitle {
-    return [self.commit message];
+    git_commit* comm = [self.commit git_commit];
+    if (comm == NULL) {
+        return @"NULL";
+    }
+    if (comm == nil) {
+        return @"nil";
+    }
+    
+    const git_oid* idbuf = git_commit_id(comm);
+    char* cstr = git_oid_allocfmt(idbuf);
+    @autoreleasepool {
+        return [[NSString alloc] initWithCString:cstr encoding:NSUTF8StringEncoding];
+    }
 }
 
 - (NSString *)messageDetails {
